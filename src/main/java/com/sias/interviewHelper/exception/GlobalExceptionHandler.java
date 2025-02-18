@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * 全局异常处理器
  *
  * @author <a href="https://github.com/SIAS8848">程序员sias</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
+ * 
  */
 @RestControllerAdvice
 @Slf4j

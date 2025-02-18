@@ -1,6 +1,6 @@
 # 公共配置文件
 # @author <a href="https://github.com/SIAS8848">程序员sias</a>
-# @from <a href="https://yupi.icu">编程导航知识星球</a>
+#
 spring:
   application:
     name: sias-interviewHelper-backend
@@ -199,4 +199,4 @@ knife4j:
       default:
         api-rule: package
         api-rule-resources:
-          - com.yupi.interviewHelper.controller
+          - com.sias.interviewHelper.controller

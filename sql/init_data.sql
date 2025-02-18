@@ -14,6 +14,10 @@ VALUES (1, 'user1', 'b0dd3697a192885d7c055db46155b26a', 'unionId1', 'mpOpenId1',
        (5, 'yupi', 'b0dd3697a192885d7c055db46155b26a', NULL, NULL, '程序员sias', 'https://www.code-nav.cn/logo.png',
         '系统管理员', 'admin');
 
+INSERT INTO user (id, userAccount, userPassword, unionId, mpOpenId, userName, userAvatar, userProfile, userRole)
+VALUES (6, 'sias', 'b0dd3697a192885d7c055db46155b26a', NULL, NULL, '程序员sias', 'https://www.code-nav.cn/logo.png',
+        '系统管理员', 'admin');
+
 -- 题库表初始数据
 INSERT INTO question_bank (title, description, picture, userId)
 VALUES ('JavaScript 基础', '包含 JavaScript 的基础知识题目',
