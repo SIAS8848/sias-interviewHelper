@@ -14,7 +14,7 @@ import java.util.List;
  * 限流测试
  *
  * @author <a href="https://github.com/SIAS8848">程序员sias</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
+ * 
  */
 public class SentinelTest {
 

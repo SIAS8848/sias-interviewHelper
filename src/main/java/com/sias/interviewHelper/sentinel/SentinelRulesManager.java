@@ -24,7 +24,7 @@ import java.util.List;
  * Sentinel 限流熔断规则管理器
  *
  * @author <a href="https://github.com/SIAS8848">程序员sias</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
+ * 
  */
 @Component
 public class SentinelRulesManager {
