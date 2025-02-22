@@ -336,11 +336,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String key = RedisConstant.getUserSignInRedisKey(year, userId);
         // 获取 Redis 的 BitMap
         RBitSet signInBitSet = redissonClient.getBitSet(key);
-        // 加载 BitSet 到内存中，避免后续读取时发送多次请求
+        // 加载 BitSet 到内存中，避免后续读取时发送多次请求   *********性能优化了
         BitSet bitSet = signInBitSet.asBitSet();
         // 统计签到的日期
         List<Integer> dayList = new ArrayList<>();
-        // 从索引 0 开始查找下一个被设置为 1 的位
+        // 从索引 0 开始查找下一个被设置为 1 的位    通过二进制的特点0000000000000000000
         int index = bitSet.nextSetBit(0);
         while (index >= 0) {
             dayList.add(index);
