@@ -29,6 +29,7 @@ import org.springframework.aop.framework.AopContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -209,6 +210,7 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
      * @param loginUser
      */
     @Override
+//    @Async    //如果数据量很大(当然这个项目不会)，由于该任务会阻塞一直到完成才会返回给前端，那么我们可以用异步编程
     public void batchAddQuestionsToBank(List<Long> questionIdList, long questionBankId, User loginUser) {
         // 参数校验
         ThrowUtils.throwIf(CollUtil.isEmpty(questionIdList), ErrorCode.PARAMS_ERROR, "题目列表不能为空");
@@ -216,9 +218,10 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
         // 检查题目 id 是否存在
         LambdaQueryWrapper<Question> questionLambdaQueryWrapper = Wrappers.lambdaQuery(Question.class)
-                .select(Question::getId)
+                .select(Question::getId) //优化questionService.listByIds()方法，只查询id字段
                 .in(Question::getId, questionIdList);
-        // 合法的题目 id 列表
+        // 合法的题目 id 列表    优化
+        //List<Question> QuestionIdList = questionService.list(questionLambdaQueryWrapper);
         List<Long> validQuestionIdList = questionService.listObjs(questionLambdaQueryWrapper, obj -> (Long) obj);
         ThrowUtils.throwIf(CollUtil.isEmpty(validQuestionIdList), ErrorCode.PARAMS_ERROR, "合法的题目 id 列表为空");
         // 检查哪些题目还不存在于题库中，避免重复插入
@@ -239,7 +242,7 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
         QuestionBank questionBank = questionBankService.getById(questionBankId);
         ThrowUtils.throwIf(questionBank == null, ErrorCode.NOT_FOUND_ERROR, "题库不存在");
 
-        // 自定义线程池（IO 密集型线程池）
+        // 自定义线程池（IO 密集型线程池）        JUC java并发编程的一些知识
         ThreadPoolExecutor customExecutor = new ThreadPoolExecutor(
                 20,             // 核心线程数
                 50,                        // 最大线程数
@@ -267,12 +270,20 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
                     }).collect(Collectors.toList());
             // 使用事务处理每批数据
             // 获取代理
+
+            //面试题：spring的事务什么时候会失效？
+            //因为spring的事务注解依赖于代理事件，会先生成当前类也就是this类的代理类，然后再去调用batchAddQuestionsToBankInner类，才会触发代理
+            //如果直接用this.batchAddQuestionsToBankInner()，则不会触发代理，也就不会触发事务
+
             QuestionBankQuestionService questionBankQuestionService = (QuestionBankQuestionServiceImpl) AopContext.currentProxy();
 
             // 异步处理每批数据，将任务添加到异步任务列表
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 questionBankQuestionService.batchAddQuestionsToBankInner(questionBankQuestions);
-            }, customExecutor);
+            }, customExecutor).exceptionally(ex ->{
+                log.error("批量添加题目到题库失败", ex);
+                return null;
+            });
             futures.add(future);
         }
         // 等待所有批次完成操作

@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
-* @author 李鱼皮
+* @author 
 * @description 针对表【question(题目)】的数据库操作Mapper
 * @createDate 2024-08-24 21:46:47
 * @Entity com.sias.interviewHelper.model.entity.Question
