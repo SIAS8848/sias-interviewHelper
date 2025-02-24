@@ -22,6 +22,8 @@ import java.util.List;
 
 /**
  * Sentinel 限流熔断规则管理器
+ * 非注解方式进行限流熔断操作。这里我们为了防止每次启动时都要去dashboard配置限流规则，所以采用文件存储限流规则，启动时自动加载限流规则。
+ * 配置成为一个bean   然后通过@PostConstruct注解进行初始化initRules()
  *
  * @author <a href="https://github.com/SIAS8848">程序员sias</a>
  * 
@@ -36,6 +38,8 @@ public class SentinelRulesManager {
         listenRules();
     }
 
+
+    //对listQuestionVOByPageSentinel进行单ip限流
     /**
      * 初始化限流规则
      */
@@ -44,6 +48,7 @@ public class SentinelRulesManager {
         ParamFlowRule rule = new ParamFlowRule(SentinelConstant.listQuestionVOByPage)
                 .setParamIdx(0) // 对第 0 个参数限流，即 IP 地址
                 .setCount(60) // 每分钟最多 60 次
+//                .setCount(10) // 每分钟最多 10 次
                 .setDurationInSec(60); // 规则的统计周期为 60 秒
         ParamFlowRuleManager.loadRules(Collections.singletonList(rule));
     }

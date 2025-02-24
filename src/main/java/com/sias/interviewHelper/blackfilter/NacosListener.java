@@ -19,6 +19,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Nacos 监听器
  *
  * @author <a href="https://github.com/SIAS8848">程序员sias</a>
+ *
+ *
+ * 这里的初始化是利用实现InitializingBean的方法afterPropertiesSet()
  * 
  */
 @Slf4j
@@ -40,6 +43,7 @@ public class NacosListener implements InitializingBean {
         log.info("nacos 监听器启动");
 
         String config = configService.getConfigAndSignListener(dataId, group, 3000L, new Listener() {
+            // 自定义executorService
             final ThreadFactory threadFactory = new ThreadFactory() {
                 private final AtomicInteger poolNumber = new AtomicInteger(1);
 
@@ -50,6 +54,7 @@ public class NacosListener implements InitializingBean {
                     return thread;
                 }
             };
+            // 自定义executorService   这些自定义包括上面的都可以不用写
             final ExecutorService executorService = Executors.newFixedThreadPool(1, threadFactory);
 
             // 通过线程池异步处理黑名单变化的逻辑

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 黑名单过滤工具类
+ * 黑名单过滤工具类   根据布隆过滤器
  *
  * @author <a href="https://github.com/SIAS8848">程序员sias</a>
  * 
@@ -18,6 +18,7 @@ import java.util.Map;
 @Slf4j
 public class BlackIpUtils {
 
+    //hutool bloomfilter
     private static BitMapBloomFilter bloomFilter = new BitMapBloomFilter(100);
 
     // 判断 ip 是否在黑名单里

@@ -213,6 +213,19 @@ public class QuestionBankController {
      * @param request
      * @return
      */
+    //测试发现，任何业务异常(不仅仅是被熔断了)，
+    //都会触发 fallbackHandler ，该方法可作为一个通用的降级逻辑处理器
+    //测试发现，如果 blockHandler和fallbackHandler
+    //同时配置，当熔断器打开后，仍然会进入b1ockHand1er 进行处理(因为限流和熔断异常在sentinel中都被定义为blockException)
+    //因此需要在该方法中处理因为熔断触发的降级逻辑:
+
+//    Sentinel的blockHandler 处理的是 BlockException ，.
+//    该异常表示系统受到流量控制限制(如限流或熔断)，
+//    这些不是业务逻辑中的异常，因此 fal1back 不会处理这些异常。如果不配置 b1ockHandler ，才会在熔断时，进入到 fa11backHandler 中进行兜底。
+//    总结一下，
+//    blockHandler 处理 Sentinel 流量控制异常，如 B1ockException 。
+//    fa11back 处理业务逻辑中的异常，比如我们自己的 BusinessException 。
+
     @PostMapping("/list/page/vo")
     @SentinelResource(value = SentinelConstant.listQuestionBankVOByPage,
             blockHandler = "handleBlockException",
@@ -247,6 +260,9 @@ public class QuestionBankController {
 
     /**
      * listQuestionBankVOByPage 降级操作：直接返回本地数据（此处为了方便演示，写在同一个类中）
+     *
+     *
+     * 注意 降级操作处理的异常不只包含熔断造成的异常，还包括业务逻辑的异常,都会返回
      */
     public BaseResponse<Page<QuestionBankVO>> handleFallback(@RequestBody QuestionBankQueryRequest questionBankQueryRequest,
                                                              HttpServletRequest request, Throwable ex) {

@@ -18,7 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @MapperScan("com.sias.interviewHelper.mapper")
 @EnableScheduling
-@ServletComponentScan
+@ServletComponentScan  //这样@webfilter过滤器才会被扫描到(本项目中用到的就是nacos的黑名单过滤功能)
 @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true)
 public class MainApplication {
 
