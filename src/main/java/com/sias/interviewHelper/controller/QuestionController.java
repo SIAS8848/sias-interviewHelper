@@ -10,10 +10,12 @@ import com.alibaba.csp.sentinel.Tracer;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.sias.interviewHelper.annotation.AuthCheck;
 import com.sias.interviewHelper.common.BaseResponse;
 import com.sias.interviewHelper.common.DeleteRequest;
 import com.sias.interviewHelper.common.ErrorCode;
 import com.sias.interviewHelper.common.ResultUtils;
+import com.sias.interviewHelper.constant.RedisConstant;
 import com.sias.interviewHelper.constant.UserConstant;
 import com.sias.interviewHelper.exception.BusinessException;
 import com.sias.interviewHelper.exception.ThrowUtils;
@@ -63,6 +65,7 @@ public class QuestionController {
      */
     @PostMapping("/add")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
+    //@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)   //自定义注解实现鉴权
     public BaseResponse<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(questionAddRequest == null, ErrorCode.PARAMS_ERROR);
         // todo 在此处将实体类和 DTO 进行转换
@@ -94,6 +97,7 @@ public class QuestionController {
      */
     @PostMapping("/delete")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
+    //@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)   //自定义注解实现鉴权
     public BaseResponse<Boolean> deleteQuestion(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -121,6 +125,7 @@ public class QuestionController {
      */
     @PostMapping("/update")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
+    //@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)   //自定义注解实现鉴权
     public BaseResponse<Boolean> updateQuestion(@RequestBody QuestionUpdateRequest questionUpdateRequest) {
         if (questionUpdateRequest == null || questionUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -146,6 +151,7 @@ public class QuestionController {
 
     /**
      * 根据 id 获取题目（封装类）
+     * 保护一下 反爬虫
      *
      * @param id
      * @return
@@ -153,7 +159,10 @@ public class QuestionController {
     @GetMapping("/get/vo")
     public BaseResponse<QuestionVO> getQuestionVOById(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
-        // 检测和处置爬虫（可以自行扩展为 - 登录后才能获取到答案）
+        //TODO 检测和处置爬虫（可以自行扩展为 - 登录后才能获取到答案）
+        //之前的自定义AuthInterceptor 拦截器已经有对ban的处理逻辑
+        //但是目前使用的SaToken还没有实现对于已经被ban的账号的逻辑，
+        //如果要实现，可以去SaTokenConfigure中实现addInterceptors
         User loginUser = userService.getLoginUserPermitNull(request);
         if (loginUser != null) {
             crawlerDetect(loginUser.getId());
@@ -181,7 +190,8 @@ public class QuestionController {
         // 调用多少次时封号
         final int BAN_COUNT = 20;
         // 拼接访问 key
-        String key = String.format("user:access:%s", loginUserId);
+//        String key = String.format(user:access:%s, loginUserId);
+        String key = String.format(RedisConstant.USER_CRAWLER_DETECT_KEY, loginUserId);
         // 统计一分钟内访问次数，180 秒过期
         long count = counterManager.incrAndGetCounter(key, 1, TimeUnit.MINUTES, 180);
         // 是否封号
@@ -209,7 +219,8 @@ public class QuestionController {
      * @return
      */
     @PostMapping("/list/page")
-    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)  
+    //@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)   //自定义注解实现鉴权
     public BaseResponse<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest) {
         ThrowUtils.throwIf(questionQueryRequest == null, ErrorCode.PARAMS_ERROR);
         // 查询数据库
@@ -324,7 +335,8 @@ public class QuestionController {
      * @return
      */
     @PostMapping("/edit")
-    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)  
+    //@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)   //自定义注解实现鉴权
     public BaseResponse<Boolean> editQuestion(@RequestBody QuestionEditRequest questionEditRequest, HttpServletRequest request) {
         if (questionEditRequest == null || questionEditRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -370,7 +382,8 @@ public class QuestionController {
     }
 
     @PostMapping("/delete/batch")
-    @SaCheckRole(UserConstant.ADMIN_ROLE)
+    @SaCheckRole(UserConstant.ADMIN_ROLE)  
+    //@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)   //自定义注解实现鉴权
     public BaseResponse<Boolean> batchDeleteQuestions(@RequestBody QuestionBatchDeleteRequest questionBatchDeleteRequest) {
         ThrowUtils.throwIf(questionBatchDeleteRequest == null, ErrorCode.PARAMS_ERROR);
         questionService.batchDeleteQuestions(questionBatchDeleteRequest.getQuestionIdList());

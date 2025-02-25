@@ -114,10 +114,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             log.info("user login failed, userAccount cannot match userPassword");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
-        // 3. 记录用户的登录态
+        // 3. 记录用户的登录态 利用servlet的session
 //        request.getSession().setAttribute(USER_LOGIN_STATE, user);
 
-        // 使用 Sa-Token 登录，并指定设备，同端登录互斥
+        // 不用servlet的session，使用 Sa-Token 登录，并指定设备，实现同端登录互斥
         StpUtil.login(user.getId(), DeviceUtils.getRequestDevice(request));
         StpUtil.getSession().set(USER_LOGIN_STATE, user);
         return this.getLoginUserVO(user);
@@ -168,7 +168,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (loginUserId == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-//        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+
+//        StpUtil.getSession().get(USER_LOGIN_STATE);   //为了确保及时更新还是直接从数据库中拿 注释
+
+
+//        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE); //此前是利用servlet来获取登录态，现在利用SaToken
 //        User currentUser = (User) userObj;
 //        if (currentUser == null || currentUser.getId() == null) {
 //            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
@@ -196,7 +200,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return null;
         }
 //        // 先判断是否已登录
-//        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+//        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE); //此前是利用servlet来获取登录态，现在利用SaToken
 //        User currentUser = (User) userObj;
 //        if (currentUser == null || currentUser.getId() == null) {
 //            return null;
@@ -217,7 +221,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 仅管理员可查询
         // 基于 Sa-Token 改造
         Object userObj = StpUtil.getSession().get(USER_LOGIN_STATE);
-//        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+//        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE); //此前是利用servlet来获取登录态，现在利用SaToken
         User user = (User) userObj;
         return isAdmin(user);
     }
@@ -235,12 +239,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public boolean userLogout(HttpServletRequest request) {
         StpUtil.checkLogin();
-        // 移除登录态
+        // 移除登录态   所有设备都下线
         StpUtil.logout();
 //        if (request.getSession().getAttribute(USER_LOGIN_STATE) == null) {
 //            throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
 //        }
-//        // 移除登录态
+//        // 移除登录态   之前是用servlet
 //        request.getSession().removeAttribute(USER_LOGIN_STATE);
         return true;
     }

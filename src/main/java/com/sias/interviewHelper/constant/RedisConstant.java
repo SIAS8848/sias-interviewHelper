@@ -10,6 +10,12 @@ public interface RedisConstant {
      */
     String USER_SIGN_IN_REDIS_KEY_PREFIX = "user:signins";
 
+
+    /**
+     * 用户爬虫检测的 Redis key
+     */
+    String USER_CRAWLER_DETECT_KEY="user:access:%s";
+
     /**
      * 获取用户签到记录的 Redis Key
      * @param year 年份

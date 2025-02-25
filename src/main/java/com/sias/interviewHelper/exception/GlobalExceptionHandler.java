@@ -31,12 +31,15 @@ public class GlobalExceptionHandler {
         return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "系统错误");
     }
 
+
+    //处理SaToken的相关异常，防止返回500系统错误
     @ExceptionHandler(NotRoleException.class)
     public BaseResponse<?> notRoleExceptionHandler(RuntimeException e) {
         log.error("NotRoleException", e);
         return ResultUtils.error(ErrorCode.NO_AUTH_ERROR, "无权限");
     }
 
+    //处理SaToken的相关异常，防止返回500系统错误
     @ExceptionHandler(NotLoginException.class)
     public BaseResponse<?> notLoginExceptionHandler(RuntimeException e) {
         log.error("NotLoginException", e);

@@ -3,6 +3,7 @@ package com.sias.interviewHelper.controller;
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.sias.interviewHelper.annotation.AuthCheck;
 import com.sias.interviewHelper.common.BaseResponse;
 import com.sias.interviewHelper.common.DeleteRequest;
 import com.sias.interviewHelper.common.ErrorCode;
@@ -111,6 +112,7 @@ public class PostController {
      */
     @PostMapping("/update")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
+    //@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)   //自定义注解实现鉴权
     public BaseResponse<Boolean> updatePost(@RequestBody PostUpdateRequest postUpdateRequest) {
         if (postUpdateRequest == null || postUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -157,6 +159,7 @@ public class PostController {
      */
     @PostMapping("/list/page")
     @SaCheckRole(UserConstant.ADMIN_ROLE)
+    //@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)   //自定义注解实现鉴权
     public BaseResponse<Page<Post>> listPostByPage(@RequestBody PostQueryRequest postQueryRequest) {
         long current = postQueryRequest.getCurrent();
         long size = postQueryRequest.getPageSize();

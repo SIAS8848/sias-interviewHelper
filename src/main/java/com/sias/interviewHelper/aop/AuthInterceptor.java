@@ -16,13 +16,13 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 权限校验 AOP
- *
+ * 权限校验 AOP        自定义AOP实现鉴权(本项目中已被SaToken替代)
+ *  AuthCheck注解 有关的AOP
  * @author <a href="https://github.com/SIAS8848">程序员sias</a>
  * 
  */
-//@Aspect
-//@Component
+//@Aspect  //本项目中已被SaToken替代
+//@Component   //自定义AOP实现鉴权(本项目中已被SaToken替代)
 public class AuthInterceptor {
 
     @Resource

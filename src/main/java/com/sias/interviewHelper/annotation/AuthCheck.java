@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 权限校验
+ * 权限校验           自定义注解实现鉴权(本项目中已被SaToken替代)
  *
  * @author <a href="https://github.com/SIAS8848">程序员sias</a>
  * 

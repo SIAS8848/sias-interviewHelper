@@ -19,6 +19,7 @@ public class StpInterfaceImpl implements StpInterface {
 
     /**
      * 返回一个账号所拥有的权限码集合（目前没用）
+     * 这个方法是细粒度的
      */
     @Override
     public List<String> getPermissionList(Object loginId, String loginType) {

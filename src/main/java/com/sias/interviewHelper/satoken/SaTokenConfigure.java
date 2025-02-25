@@ -16,5 +16,6 @@ public class SaTokenConfigure implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         // 注册 Sa-Token 拦截器，打开注解式鉴权功能 
         registry.addInterceptor(new SaInterceptor()).addPathPatterns("/**");
+        //TODO 对于已经封禁的账号处理逻辑
     }
 }
